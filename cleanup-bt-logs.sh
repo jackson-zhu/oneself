@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # ==================================================
-# 系统日志清理工具（表格化输出版）
-# 功能：安全清理各类系统/服务日志文件，释放磁盘空间
+# 系统日志清理工具（增强版）
+# 功能：安全清理各类系统/服务日志和备份文件，释放磁盘空间
 # 特点：
 #   1. 表格化输出清理结果，状态可视化
 #   2. 支持中文显示宽度计算（自动截断超长内容）
@@ -188,6 +188,33 @@ clear_and_log() {
 }
 
 # ------------------------------
+# 函数：delete_files
+# 功能：删除匹配的文件并记录结果
+# 参数：
+#   $1 - 文件匹配模式（支持通配符）
+#   $2 - 日志描述
+# ------------------------------
+delete_files() {
+    local pattern="$1"
+    local desc="$2"
+    
+    # 查找匹配的文件
+    local files_found=$(ls $pattern 2>/dev/null | wc -l)
+    
+    if [ $files_found -gt 0 ]; then
+        # 删除文件
+        rm -f $pattern 2>/dev/null
+        if [ $? -eq 0 ]; then
+            table_output "$desc" "$pattern" "success"
+        else
+            table_output "$desc" "$pattern" "error"
+        fi
+    else
+        table_output "$desc" "$pattern" "warning"
+    fi
+}
+
+# ------------------------------
 # 权限检查（必须root用户）
 # ------------------------------
 if [ "$EUID" -ne 0 ]; then
@@ -225,12 +252,14 @@ print_table_footer
 echo -e "\n${BLUE}2. 日志归档清理结果${NC}"
 print_table_header
 
-# 清理压缩归档日志
-if rm -f /var/log/syslog.* /var/log/auth.log.* /var/log/kern.log.* /var/log/messages.* 2>/dev/null; then
-    table_output "系统归档日志" "/var/log/syslog.*" "success"
-else
-    table_output "系统归档日志" "/var/log/syslog.*" "warning"
-fi
+# 清理压缩归档日志（增强版）
+delete_files "/var/log/syslog.*" "系统归档日志"
+delete_files "/var/log/auth.log.*" "认证归档日志"
+delete_files "/var/log/kern.log.*" "内核归档日志"
+delete_files "/var/log/messages.*" "客户端归档日志"
+delete_files "/var/log/alternatives.log.*" "管理员归档日志"
+delete_files "/var/log/btmp.*" "失败登录归档"
+delete_files "/var/log/dpkg.log.*" "dpkg归档日志"
 
 print_table_footer
 
@@ -238,11 +267,16 @@ print_table_footer
 echo -e "\n${BLUE}3. 宝塔面板日志清理结果${NC}"
 print_table_header
 
-clear_and_log "/www/backup/panel/db/task.db" "宝塔任务数据库"
 clear_and_log "/www/server/panel/data/db/task.db" "宝塔任务数据库"
+clear_and_log "/www/backup/panel/db/task.db" "宝塔任务数据库"
 clear_and_log "/www/server/redis/redis.log" "Redis日志"
 clear_and_log "/www/server/panel/logs/task.log" "宝塔任务日志"
 clear_and_log "/www/server/panel/logs/upgrade_polkit.log" "Polkit升级日志"
+clear_and_log "/www/server/panel/data/db/log.db" "宝塔日志数据库"
+clear_and_log "/www/backup/panel/db/log.db" "宝塔日志数据库"
+clear_and_log "/www/server/panel/logs/error.log" "宝塔错误日志"
+clear_and_log "/www/server/panel/logs/letsencrypt.log" "SSL证书日志"
+clear_and_log "/www/server/panel/logs/terminal.log" "终端操作日志"
 
 # 特殊处理目录（清空目录内所有文件）
 if [ -d "/www/server/panel/logs/installed" ]; then
@@ -254,8 +288,17 @@ fi
 
 print_table_footer
 
-# 模块4：PHP-FPM日志清理（多版本支持）
-echo -e "\n${BLUE}4. PHP-FPM日志清理结果${NC}"
+# 模块4：宝塔面板备份清理
+echo -e "\n${BLUE}4. 宝塔面板备份清理结果${NC}"
+print_table_header
+
+# 清理每日备份文件
+delete_files "/www/backup/panel/*.zip" "宝塔每日备份"
+
+print_table_footer
+
+# 模块5：PHP-FPM日志清理（多版本支持）
+echo -e "\n${BLUE}5. PHP-FPM日志清理结果${NC}"
 print_table_header
 
 # 支持多个PHP版本
@@ -267,8 +310,8 @@ done
 
 print_table_footer
 
-# 模块5：MySQL日志清理
-echo -e "\n${BLUE}5. MySQL日志清理结果${NC}"
+# 模块6：MySQL日志清理
+echo -e "\n${BLUE}6. MySQL日志清理结果${NC}"
 print_table_header
 
 mysql_log_dir="/www/server/data"
@@ -303,5 +346,6 @@ df -h / | awk 'NR==2 {print "可用空间: " $4 "/" $2 " (已用 " $5 ")"}'
 # 安全注意事项
 echo -e "\n${YELLOW}【重要安全提示】${NC}"
 echo "1. MySQL 二进制日志删除后不可恢复！"
-echo "2. 部分日志需重启服务后重新生成"
-echo "3. 建议定期执行本脚本维护服务器"
+echo "2. 宝塔面板备份文件已永久删除"
+echo "3. 部分日志需重启服务后重新生成"
+echo "4. 建议定期执行本脚本维护服务器"
