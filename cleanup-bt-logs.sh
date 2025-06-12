@@ -228,40 +228,45 @@ fi
 # ==============================================
 
 # 模块1：系统日志清理
-echo -e "\n${BLUE}1. 系统日志清理结果${NC}"
+echo -e "\n${BLUE}1. 宝塔日志审计清理结果${NC}"
 print_table_header
 
-clear_and_log "/var/log/alternatives.log" "系统管理员日志"
-clear_and_log "/var/log/auth.log" "用户认证日志"
-clear_and_log "/var/log/btmp" "失败登录记录"
-clear_and_log "/var/log/daemon.log" "守护进程日志"
-clear_and_log "/var/log/debug" "调试日志"
-clear_and_log "/var/log/dpkg.log" "dpkg管理日志"
-clear_and_log "/var/log/apt/history.log" "APT安装历史"
+clear_and_log "/var/log/alternatives.log" "更新替代信息"
+clear_and_log "/var/log/auth.log" "授权日志"
+clear_and_log "/var/log/btmp" "失败的登录记录"
+clear_and_log "/var/log/daemon.log" "系统后台守护进程日志"
+clear_and_log "/var/log/debug" "调试信息"
+clear_and_log "/var/log/dpkg.log" "dpkg日志"
 clear_and_log "/var/log/kern.log" "内核日志"
-clear_and_log "/var/log/lastlog" "用户是否登录时间"
-clear_and_log "/var/log/messages" "系统客户端日志"
-clear_and_log "/var/log/syslog" "系统主日志"
-clear_and_log "/var/log/apt/term.log" "APT终端日志"
-clear_and_log "/var/log/ufw.log" "防火墙日志"
-clear_and_log "/var/log/wtmp" "登录重启记录"
+clear_and_log "/var/log/lastlog" "用户最后登录"
+clear_and_log "/var/log/messages" "综合日志"
+clear_and_log "/var/log/syslog" "系统警告/错误日志"
+clear_and_log "/var/log/ufw.log" "ufw日志"
+clear_and_log "/var/log/wtmp" "登录和重启记录"
+clear_and_log "/var/log/apt/history.log" "history日志"
+clear_and_log "/var/log/apt/term.log" "term日志"
 
 print_table_footer
 
 # 模块2：日志归档清理
-echo -e "\n${BLUE}2. 日志归档清理结果${NC}"
+echo -e "\n${BLUE}2. 宝塔日志审计归档清理结果${NC}"
 print_table_header
 
 # 清理压缩归档日志（增强版）
-delete_files "/var/log/syslog.*" "系统归档日志"
-delete_files "/var/log/auth.log.*" "认证归档日志"
-delete_files "/var/log/kern.log.*" "内核归档日志"
-delete_files "/var/log/messages.*" "客户端归档日志"
-delete_files "/var/log/alternatives.log.*" "管理员归档日志"
-delete_files "/var/log/btmp.*" "失败登录归档"
-delete_files "/var/log/dpkg.log.*" "dpkg归档日志"
-delete_files "/var/log/apt/history.log.*" "APT安装历史归档"
-delete_files "/var/log/apt/term.log.*" "APT终端归档日志"
+delete_files "/var/log/alternatives.log.*" "更新替代信息归档"
+delete_files "/var/log/auth.log.*" "授权日志归档"
+delete_files "/var/log/btmp.*" "失败的登录记录归档"
+delete_files "/var/log/daemon.log.*" "系统后台守护进程日志"
+delete_files "/var/log/debug.log.*" "调试信息归档"
+delete_files "/var/log/dpkg.log.*" "dpkg日志归档"
+delete_files "/var/log/kern.log.*" "内核日志归档"
+delete_files "/var/log/lastlog.*" "用户最后登录归档"
+delete_files "/var/log/messages.*" "综合日志归档"
+delete_files "/var/log/syslog.*" "系统警告/错误日志归档"
+delete_files "/var/log/ufw.log.*" "ufw日志归档"
+delete_files "/var/log/wtmp.*" "登录和重启记录归档"
+delete_files "/var/log/apt/history.log.*" "history日志归档"
+delete_files "/var/log/apt/term.log.*" "term日志归档"
 
 print_table_footer
 
@@ -269,18 +274,19 @@ print_table_footer
 echo -e "\n${BLUE}3. 宝塔面板日志清理结果${NC}"
 print_table_header
 
-clear_and_log "/www/backup/panel/db/task.db" "宝塔任务数据库"
-clear_and_log "/www/server/panel/data/db/task.db" "宝塔任务数据库"
-clear_and_log "/www/server/redis/redis.log" "Redis日志"
 clear_and_log "/www/server/panel/logs/task.log" "宝塔任务日志"
-clear_and_log "/www/server/panel/logs/upgrade_polkit.log" "Polkit升级日志"
-
-# 新增6个需要清空的日志文件
-clear_and_log "/www/backup/panel/db/log.db" "宝塔日志数据库"
-clear_and_log "/www/server/panel/data/db/log.db" "宝塔日志数据库"
 clear_and_log "/www/server/panel/logs/error.log" "宝塔错误日志"
+clear_and_log "/www/server/panel/logs/upgrade_polkit.log" "Polkit升级日志"
 clear_and_log "/www/server/panel/logs/letsencrypt.log" "SSL证书日志"
 clear_and_log "/www/server/panel/logs/terminal.log" "终端操作日志"
+
+clear_and_log "/www/server/panel/data/msg_box.db" "消息盒子数据库"
+clear_and_log "/www/server/panel/data/db/log.db" "面板操作日志"
+clear_and_log "/www/backup/panel/db/log.db" "面板操作日志备份"
+clear_and_log "/www/server/panel/data/db/backup.db" "宝塔备份日志"
+clear_and_log "/www/backup/panel/db/backup.db" "宝塔备份日志备份"
+clear_and_log "/www/server/panel/data/db/task.db" "软件安装任务日志"
+clear_and_log "/www/backup/panel/db/task.db" "软件安装任务日志备份"
 
 # 特殊处理目录（清空目录内所有文件）
 if [ -d "/www/server/panel/logs/installed" ]; then
@@ -290,20 +296,13 @@ else
     table_output "软件安装日志" "/www/server/panel/logs/installed" "warning"
 fi
 
-print_table_footer
-
-# 模块4：宝塔面板备份清理
-echo -e "\n${BLUE}4. 宝塔面板备份清理结果${NC}"
-print_table_header
-
-# 清理每日备份文件
-delete_files "/www/backup/panel/*.zip" "宝塔每日备份"
-delete_files "/www/backup/panel/db/*.db" "宝塔数据库备份"
+clear_and_log "/www/server/panel/data/db/client_info.db" "客户端信息数据库"
+clear_and_log "/www/backup/panel/db/client_info.db" "客户端信息数据库备份"
 
 print_table_footer
 
-# 模块5：PHP-FPM日志清理（多版本支持）
-echo -e "\n${BLUE}5. PHP-FPM日志清理结果${NC}"
+# 模块4：软件日志清理
+echo -e "\n${BLUE}5. 软件日志清理结果${NC}"
 print_table_header
 
 # 支持多个PHP版本
@@ -313,35 +312,41 @@ for version in "${php_versions[@]}"; do
     clear_and_log "$log_path" "PHP ${version} FPM日志"
 done
 
-print_table_footer
-
-# 模块6：MySQL日志清理
-echo -e "\n${BLUE}6. MySQL日志清理结果${NC}"
-print_table_header
-
 mysql_log_dir="/www/server/data"
 
-# 清理错误日志
+# 清理Mysql错误日志
 for err_file in "$mysql_log_dir"/*.err; do
     [ -f "$err_file" ] && clear_and_log "$err_file" "MySQL错误日志"
 done
 
-# 清理二进制日志（不可恢复操作）
+# 清理Mysql二进制日志（不可恢复操作）
 if rm -f "$mysql_log_dir"/mysql-bin.[0-9]* 2>/dev/null; then
     table_output "MySQL二进制日志" "$mysql_log_dir/mysql-bin.[0-9]*" "success"
 else
     table_output "MySQL二进制日志" "$mysql_log_dir/mysql-bin.[0-9]*" "warning"
 fi
 
-# 清理索引文件
+# 清理Mysql二进制日志索引文件
 clear_and_log "$mysql_log_dir/mysql-bin.index" "MySQL二进制日志索引"
+
+# 清理Redis日志
+clear_and_log "/www/server/redis/redis.log" "Redis日志"
 
 print_table_footer
 
-# 清理journal日志（保留最近10MB）
+# 模块5：宝塔面板文件服务器备份清理
+echo -e "\n${BLUE}4. 宝塔面板文件服务器备份清理结果${NC}"
+print_table_header
+
+# 清理每日备份文件
+delete_files "/www/backup/panel/*.zip" "每日备份-日期命名"
+
+print_table_footer
+
+# 模块6： 清理journal日志（保留最近40MB）
 echo -e "\n${BLUE}7. 清理系统journal日志${NC}"
 echo "--------------------------------------------------------------------------------------------------------------"
-journalctl_output=$(journalctl --vacuum-size=10M 2>&1)
+journalctl_output=$(journalctl --vacuum-size=40M 2>&1)
 echo "$journalctl_output"
 echo "--------------------------------------------------------------------------------------------------------------"
 
