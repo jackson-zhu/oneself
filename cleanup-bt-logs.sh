@@ -260,6 +260,8 @@ delete_files "/var/log/messages.*" "客户端归档日志"
 delete_files "/var/log/alternatives.log.*" "管理员归档日志"
 delete_files "/var/log/btmp.*" "失败登录归档"
 delete_files "/var/log/dpkg.log.*" "dpkg归档日志"
+delete_files "/var/log/apt/history.log.*" "APT安装历史归档"
+delete_files "/var/log/apt/term.log.*" "APT终端归档日志"
 
 print_table_footer
 
@@ -267,13 +269,15 @@ print_table_footer
 echo -e "\n${BLUE}3. 宝塔面板日志清理结果${NC}"
 print_table_header
 
-clear_and_log "/www/server/panel/data/db/task.db" "宝塔任务数据库"
 clear_and_log "/www/backup/panel/db/task.db" "宝塔任务数据库"
+clear_and_log "/www/server/panel/data/db/task.db" "宝塔任务数据库"
 clear_and_log "/www/server/redis/redis.log" "Redis日志"
 clear_and_log "/www/server/panel/logs/task.log" "宝塔任务日志"
 clear_and_log "/www/server/panel/logs/upgrade_polkit.log" "Polkit升级日志"
-clear_and_log "/www/server/panel/data/db/log.db" "宝塔日志数据库"
+
+# 新增6个需要清空的日志文件
 clear_and_log "/www/backup/panel/db/log.db" "宝塔日志数据库"
+clear_and_log "/www/server/panel/data/db/log.db" "宝塔日志数据库"
 clear_and_log "/www/server/panel/logs/error.log" "宝塔错误日志"
 clear_and_log "/www/server/panel/logs/letsencrypt.log" "SSL证书日志"
 clear_and_log "/www/server/panel/logs/terminal.log" "终端操作日志"
@@ -294,6 +298,7 @@ print_table_header
 
 # 清理每日备份文件
 delete_files "/www/backup/panel/*.zip" "宝塔每日备份"
+delete_files "/www/backup/panel/db/*.db" "宝塔数据库备份"
 
 print_table_footer
 
@@ -342,6 +347,22 @@ echo "==========================================================================
 # 磁盘空间信息
 echo -e "\n${BLUE}当前磁盘使用情况：${NC}"
 df -h / | awk 'NR==2 {print "可用空间: " $4 "/" $2 " (已用 " $5 ")"}'
+
+# 清理journal日志（保留最近10MB）
+echo -e "\n${BLUE}7. 清理系统journal日志${NC}"
+echo "--------------------------------------------------------------------------------------------------------------"
+journalctl_output=$(journalctl --vacuum-size=10M 2>&1)
+echo "$journalctl_output"
+echo "--------------------------------------------------------------------------------------------------------------"
+
+# 检查journal清理结果并显示状态
+if [[ "$journalctl_output" == *"Vacuuming done"* ]]; then
+    echo -e "${GREEN}✓ journal日志清理成功${NC}"
+else
+    echo -e "${YELLOW}! journal日志清理可能未完全执行${NC}"
+    echo "详细信息:"
+    echo "$journalctl_output"
+fi
 
 # 安全注意事项
 echo -e "\n${YELLOW}【重要安全提示】${NC}"
