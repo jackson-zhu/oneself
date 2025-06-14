@@ -1,17 +1,13 @@
 #!/bin/bash
 
 # ==================================================
-# 系统日志清理工具（增强版）
-# 功能：安全清理各类系统/服务日志和备份文件，释放磁盘空间
-# 特点：
-#   1. 表格化输出清理结果，状态可视化
-#   2. 支持中文显示宽度计算（自动截断超长内容）
-#   3. 彩色状态标识（成功/警告/错误）
-# 安全机制：
-#   - 需 root 权限执行
-#   - 文件存在性校验
-#   - 操作错误捕获
-# 适用场景：Linux服务器日常维护
+# 系统日志与备份清理工具（增强版）
+# 主要功能：
+#   - 安全清理系统、服务、面板及备份日志，释放磁盘空间
+#   - 结果表格化输出，状态彩色可视
+#   - 支持中文宽度对齐与内容截断
+#   - 需 root 权限，操作安全校验
+# 适用环境：Linux 服务器日常维护
 # ==================================================
 
 echo "开始执行系统日志清理..."
@@ -27,10 +23,9 @@ BLUE=$'\033[0;34m'   # 信息标题
 NC=$'\033[0m'        # 颜色重置
 
 # ------------------------------
-# 函数：display_width
-# 功能：计算字符串的显示宽度（考虑中文字符）
-# 参数：$1 - 待计算的字符串
-# 返回值：输出字符串的显示宽度（数字）
+# 计算字符串显示宽度（支持中文）
+# $1: 输入字符串
+# 输出：显示宽度（数字）
 # ------------------------------
 display_width() {
     local str="$1"
@@ -41,13 +36,11 @@ display_width() {
 }
 
 # ------------------------------
-# 函数：pad_string
-# 功能：填充字符串到指定显示宽度
-# 参数：
-#   $1 - 原始字符串
-#   $2 - 目标宽度
-#   $3 - 填充字符（默认空格）
-# 返回值：输出填充后的字符串
+# 填充字符串到指定宽度
+# $1: 原始字符串
+# $2: 目标宽度
+# $3: 填充字符（默认空格）
+# 输出：填充后的字符串
 # ------------------------------
 pad_string() {
     local str="$1"
@@ -65,16 +58,11 @@ pad_string() {
 }
 
 # ------------------------------
-# 函数：table_output
-# 功能：生成表格行输出
-# 参数：
-#   $1 - 日志描述
-#   $2 - 文件路径
-#   $3 - 状态码（success/warning/error）
-# 处理逻辑：
-#   1. 自动截断超长文本并添加".."后缀
-#   2. 根据状态码添加彩色标识
-#   3. 动态计算列宽对齐
+# 输出表格行
+# $1: 日志描述
+# $2: 文件路径
+# $3: 状态码（success/warning/error）
+# 自动截断、彩色标识、宽度对齐
 # ------------------------------
 table_output() {
     local description="$1"
@@ -133,8 +121,7 @@ table_output() {
 }
 
 # ------------------------------
-# 函数：print_table_header
-# 功能：输出表格头部（带列标题）
+# 输出表格头部（含列标题）
 # ------------------------------
 print_table_header() {
     local target_desc_width=32
@@ -152,23 +139,17 @@ print_table_header() {
 }
 
 # ------------------------------
-# 函数：print_table_footer
-# 功能：输出表格底部边框
+# 输出表格底部边框
 # ------------------------------
 print_table_footer() {
     echo "+----------------------------------+--------------+--------------------------------------------------------------+"
 }
 
 # ------------------------------
-# 函数：clear_and_log
-# 功能：安全清空文件并记录结果
-# 参数：
-#   $1 - 文件路径
-#   $2 - 日志描述
-# 安全机制：
-#   - 文件存在性检查
-#   - 操作错误捕获
-#   - 状态反馈（成功/文件不存在/操作失败）
+# 清空文件内容并记录结果
+# $1: 文件路径
+# $2: 日志描述
+# 自动校验文件存在性与操作状态
 # ------------------------------
 clear_and_log() {
     local file="$1"
@@ -188,11 +169,9 @@ clear_and_log() {
 }
 
 # ------------------------------
-# 函数：delete_files
-# 功能：删除匹配的文件并记录结果
-# 参数：
-#   $1 - 文件匹配模式（支持通配符）
-#   $2 - 日志描述
+# 删除匹配文件并记录结果
+# $1: 文件匹配模式（支持通配符）
+# $2: 日志描述
 # ------------------------------
 delete_files() {
     local pattern="$1"
@@ -215,7 +194,7 @@ delete_files() {
 }
 
 # ------------------------------
-# 权限检查（必须root用户）
+# 权限检查（必须 root 用户）
 # ------------------------------
 if [ "$EUID" -ne 0 ]; then
     echo -e "${RED}错误: 此脚本需 root 权限执行！${NC}"
@@ -224,7 +203,7 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 # ==============================================
-# 主清理流程
+# 主清理流程入口
 # ==============================================
 
 # 模块1：系统日志清理
@@ -248,7 +227,7 @@ clear_and_log "/var/log/apt/term.log" "term日志"
 
 print_table_footer
 
-# 模块2：日志归档清理
+# 模块2：系统日志归档清理
 echo -e "\n${BLUE}2. 宝塔日志审计归档清理结果${NC}"
 print_table_header
 
@@ -301,7 +280,7 @@ clear_and_log "/www/backup/panel/db/client_info.db" "客户端信息数据库备
 
 print_table_footer
 
-# 模块4：软件日志清理
+# 模块4：常用软件日志清理
 echo -e "\n${BLUE}5. 软件日志清理结果${NC}"
 print_table_header
 
@@ -334,23 +313,71 @@ clear_and_log "/www/server/redis/redis.log" "Redis日志"
 
 print_table_footer
 
-# 模块5：宝塔面板文件服务器备份清理
+# 模块5：宝塔面板文件服务器及数据库备份清理
 echo -e "\n${BLUE}4. 宝塔面板文件服务器备份清理结果${NC}"
 print_table_header
 
 # 清理每日备份文件
 delete_files "/www/backup/panel/*.zip" "每日备份-日期命名"
 
+delete_files "/www/backup/site/*" "网站备份"
+
+# 清理 /www/backup/database/ 目录 (排除 mysql 文件夹)
+db_backup_base_path="/www/backup/database"
+db_desc="数据库备份上传记录"
+db_path_display_op="$db_backup_base_path/* (excl. mysql)"
+db_path_display_dir_missing="$db_backup_base_path (dir not found)"
+db_path_display_no_items="$db_backup_base_path/* (no items to delete or only mysql)"
+
+if [ ! -d "$db_backup_base_path" ]; then
+    table_output "$db_desc" "$db_path_display_dir_missing" "warning"
+else
+    if find "$db_backup_base_path" -mindepth 1 -maxdepth 1 ! -name "mysql" -print -quit 2>/dev/null | grep -q "."; then
+        find "$db_backup_base_path" -mindepth 1 -maxdepth 1 ! -name "mysql" -exec rm -rf {} + 2>/dev/null
+        if [ $? -eq 0 ]; then
+            table_output "$db_desc" "$db_path_display_op" "success"
+        else
+            table_output "$db_desc" "$db_path_display_op" "error"
+        fi
+    else
+        table_output "$db_desc" "$db_path_display_no_items" "warning"
+    fi
+fi
+
+# 清理 /www/backup/database/mysql/ 目录 (排除 all_backup 文件夹)
+mysql_backup_base_path="/www/backup/database/mysql"
+mysql_desc="MySQL数据库备份"
+mysql_path_display_op="$mysql_backup_base_path/* (excl. all_backup)"
+mysql_path_display_dir_missing="$mysql_backup_base_path (dir not found)"
+mysql_path_display_no_items="$mysql_backup_base_path/* (no items to delete or only all_backup)"
+
+if [ ! -d "$mysql_backup_base_path" ]; then
+        table_output "$mysql_desc" "$mysql_path_display_dir_missing" "warning"
+else
+    if find "$mysql_backup_base_path" -mindepth 1 -maxdepth 1 ! -name "all_backup" -print -quit 2>/dev/null | grep -q "."; then
+        find "$mysql_backup_base_path" -mindepth 1 -maxdepth 1 ! -name "all_backup" -exec rm -rf {} + 2>/dev/null
+        if [ $? -eq 0 ]; then
+            table_output "$mysql_desc" "$mysql_path_display_op" "success"
+        else
+            table_output "$mysql_desc" "$mysql_path_display_op" "error"
+        fi
+    else
+        table_output "$mysql_desc" "$mysql_path_display_no_items" "warning"
+    fi
+fi
+
+delete_files "/www/backup/file_history/www/wwwroot/*" "文件历史备份"
+
 print_table_footer
 
-# 模块6： 清理journal日志（保留最近40MB）
+# 模块6：系统 journal 日志清理（保留最近 40MB）
 echo -e "\n${BLUE}7. 清理系统journal日志${NC}"
 echo "--------------------------------------------------------------------------------------------------------------"
 journalctl_output=$(journalctl --vacuum-size=40M 2>&1)
 echo "$journalctl_output"
 echo "--------------------------------------------------------------------------------------------------------------"
 
-# 检查journal清理结果并显示状态
+# 检查 journal 清理结果并显示状态
 if [[ "$journalctl_output" == *"Vacuuming done"* ]]; then
     echo -e "${GREEN}✓ journal日志清理成功${NC}"
 else
@@ -365,7 +392,7 @@ fi
 echo -e "\n${GREEN}✔ 所有日志清理完成！${NC}"
 echo "=============================================================================================================="
 
-# 磁盘空间信息
+# 显示磁盘空间信息
 echo -e "\n${BLUE}当前磁盘使用情况：${NC}"
 df -h / | awk 'NR==2 {print "可用空间: " $4 "/" $2 " (已用 " $5 ")"}'
 
