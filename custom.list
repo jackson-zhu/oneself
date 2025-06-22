@@ -1,4 +1,4 @@
-# NAME: Custom
+# NAME: 自定义
 
 # Shopify
 IP-CIDR,23.227.38.32/28,no-resolve
@@ -14,4 +14,4 @@ DOMAIN-SUFFIX,kookeey.info
 DOMAIN-SUFFIX,myip.ms
 
 # 被ban的VPS
-IP-CIDR,23.95.214.3/32,no-resolve
+# IP-CIDR,23.95.214.3/32,no-resolve
