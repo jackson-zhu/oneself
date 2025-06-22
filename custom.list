@@ -1,17 +1,17 @@
 # NAME: Custom
 
-#Shopify
+# Shopify
 IP-CIDR,23.227.38.32/28,no-resolve
 IP-CIDR,23.227.38.64/27,no-resolve
 IP-CIDR,23.227.40.0/24,no-resolve
 IP-CIDR,23.227.41.0/24,no-resolve
 IP6-CIDR,2620:127:f00f:5::/64,no-resolve
 
-#静态IP
+# 静态IP
 DOMAIN-SUFFIX,kookeey.info
 
-#需要走代理
+# 需要走代理
 DOMAIN-SUFFIX,myip.ms
 
-#被ban的VPS
+# 被ban的VPS
 IP-CIDR,23.95.214.3/32,no-resolve
