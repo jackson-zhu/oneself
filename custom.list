@@ -6,6 +6,15 @@ IP-CIDR,23.227.38.64/27,no-resolve
 IP-CIDR,23.227.40.0/24,no-resolve
 IP-CIDR,23.227.41.0/24,no-resolve
 IP6-CIDR,2620:127:f00f:5::/64,no-resolve
+IP-CIDR,23.227.32.0/19,no-resolve
+IP-CIDR,151.101.1.0/24,no-resolve
+IP-CIDR,151.101.65.0/24,no-resolve
+IP-CIDR,151.101.129.0/24,no-resolve
+IP-CIDR,23.235.32.0/19,no-resolve
+IP6-CIDR,2620:127:f00f:5::/64,no-resolve
+DOMAIN-SUFFIX,shopify.com
+DOMAIN-SUFFIX,myshopify.com
+DOMAIN-SUFFIX,shopifysvc.com
 
 # 静态IP
 DOMAIN-SUFFIX,kookeey.info
