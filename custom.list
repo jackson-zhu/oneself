@@ -14,4 +14,4 @@ DOMAIN-SUFFIX,kookeey.info
 DOMAIN-SUFFIX,myip.ms
 
 #被ban的VPS
-IP-CIDR,23.95.214.3,no-resolve
+IP-CIDR,23.95.214.3/32,no-resolve
