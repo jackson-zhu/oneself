@@ -5,6 +5,7 @@ DOMAIN-SUFFIX,kookeey.info
 
 # 需要走代理
 DOMAIN-SUFFIX,myip.ms
+DOMAIN-SUFFIX,tantaly.com
 
 # 被ban的VPS
 IP-CIDR,23.95.214.0/24,no-resolve
