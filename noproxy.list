@@ -1,4 +1,7 @@
 # NAME: No proxy
 
-# 域名关键字匹配
-DOMAIN-KEYWORD,wix
+# wix
+DOMAIN-SUFFIX,wix.com
+DOMAIN-SUFFIX,fullstory.com
+DOMAIN-SUFFIX,wixpress.com
+DOMAIN-SUFFIX,wixmp.com
