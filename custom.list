@@ -2,6 +2,7 @@
 
 # 静态IP
 DOMAIN-SUFFIX,kookeey.info
+DOMAIN-SUFFIX,us.922s5.net
 
 # 需要走代理
 DOMAIN-SUFFIX,myip.ms
