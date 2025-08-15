@@ -6,6 +6,3 @@ DOMAIN-SUFFIX,us.922s5.net
 
 # 需要走代理
 DOMAIN-SUFFIX,myip.ms
-
-# 被ban的VPS
-IP-CIDR,23.95.214.0/24,no-resolve
