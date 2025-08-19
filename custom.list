@@ -4,6 +4,7 @@
 DOMAIN-SUFFIX,kookeey.info
 DOMAIN-SUFFIX,us.922s5.net
 IP-CIDR,49.51.180.209/32,no-resolve
+IP-CIDR,170.106.154.206/32,no-resolve
 
 # 需要走代理
 DOMAIN-SUFFIX,myip.ms
