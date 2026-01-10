@@ -1,13 +1,7 @@
 # NAME: 自定义
 
-# 静态IP
+# 静态IP代理
 DOMAIN-SUFFIX,kookeey.info
 DOMAIN-SUFFIX,us.922s5.net
 DOMAIN-SUFFIX,922proxy.com
-IP-CIDR,49.51.180.209/32,no-resolve
-IP-CIDR,170.106.154.206/32,no-resolve
 IP-CIDR,154.47.154.244/32,no-resolve  #IPfoxy
-
-
-# 需要走代理
-DOMAIN-SUFFIX,myip.ms
