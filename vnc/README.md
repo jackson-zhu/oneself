@@ -52,8 +52,8 @@
 | 节点 | 系统要求 | 必备条件 |
 |---|---|---|
 | VPS | Ubuntu 22.04（或其他 Debian 系） | 有 root 权限；云厂商安全组放行 **UDP 51820** |
-| 被控端 Mac | macOS（Apple Silicon / Intel 均可） | 有 sudo 权限；未装 [Homebrew](https://brew.sh) 时脚本会询问是否自动安装 |
-| 控制端 Mac | macOS（Apple Silicon / Intel 均可） | 有 sudo 权限；未装 Homebrew 时脚本会询问是否自动安装 |
+| 被控端 Mac | macOS（Apple Silicon / Intel 均可） | 有 sudo 权限；需预先安装 [Homebrew](https://brew.sh)（未装时脚本会打印命令引导） |
+| 控制端 Mac | macOS（Apple Silicon / Intel 均可） | 有 sudo 权限；需预先安装 Homebrew（未装时脚本会打印命令引导） |
 
 **只有一个一次性手动步骤脚本不管**：被控端 Mac 需要在 `系统设置 → 通用 → 共享` 里开启 **"屏幕共享"** 或 **"远程管理"**。
 
