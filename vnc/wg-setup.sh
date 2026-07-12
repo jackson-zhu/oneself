@@ -82,10 +82,27 @@ EOF
   read -r -p "现在自动安装 Homebrew? [y/N] " ans
   [[ "$ans" =~ ^[yY]$ ]] || die "已取消。请先手动安装 Homebrew: https://brew.sh"
 
+  # Homebrew 官方脚本在 NONINTERACTIVE=1 模式下会做 `sudo -n -v` 免密探测。
+  # 外层 sudo 缓存的 ticket 在 `sudo -u $SUDO_USER` 切换上下文后不生效,
+  # 必须在 $SUDO_USER 身份下重新预热一次 sudo 凭据。
+  warn "接下来会再问一次你 ($SUDO_USER) 的账户密码,用于给 Homebrew 授权..."
+  sudo -u "$SUDO_USER" -H sudo -v || die "sudo 授权失败,请确认 $SUDO_USER 是管理员用户"
+
+  # 后台保活 sudo 凭据 (Homebrew 安装 Xcode CLT 可能耗时 >5 分钟,超过 sudo 默认超时)
+  ( while kill -0 "$$" 2>/dev/null; do
+      sudo -u "$SUDO_USER" -H sudo -n -v 2>/dev/null || exit
+      sleep 60
+    done ) &
+  local sudo_keepalive=$!
+  # shellcheck disable=SC2064
+  trap "kill $sudo_keepalive 2>/dev/null || true" RETURN EXIT
+
   log "以用户 $SUDO_USER 身份运行 Homebrew 安装脚本..."
   # NONINTERACTIVE=1 让 Homebrew 官方脚本跳过 "Press RETURN to continue"
   sudo -u "$SUDO_USER" -H bash -c \
     'NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
+
+  kill "$sudo_keepalive" 2>/dev/null || true
 
   # 装完重新探测
   local prefix
