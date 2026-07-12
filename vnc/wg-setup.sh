@@ -61,7 +61,7 @@ mac_brew_prefix() {
   fi
 }
 
-# 询问并自动安装 Homebrew
+# 询问并引导用户安装 Homebrew (不自动装,只打印命令)
 install_homebrew() {
   [[ -n "${SUDO_USER:-}" && "$SUDO_USER" != "root" ]] || \
     die "需要 SUDO_USER 环境变量,请用 sudo bash $0 运行"
@@ -70,55 +70,25 @@ install_homebrew() {
   cat <<EOF
 
   Homebrew 是 macOS 常用的第三方包管理器,不是系统自带。
-  接下来会以你的普通用户 ($SUDO_USER) 身份运行官方安装脚本:
-    /bin/bash -c "\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-  过程中会:
-    1. 下载并安装 Xcode Command Line Tools (几百 MB,可能耗时几分钟)
-    2. 创建 /opt/homebrew (Apple Silicon) 或 /usr/local (Intel) 目录
-    3. 需要输入 sudo 密码 (你刚才的密码已缓存,通常不会再问)
+  由于 macOS 的 sudo tty-ticket 机制,自动化安装 Homebrew 不稳定,
+  请【退出本脚本】,以普通用户 $SUDO_USER 身份手动运行下面这条:
 
-EOF
-  read -r -p "现在自动安装 Homebrew? [y/N] " ans
-  [[ "$ans" =~ ^[yY]$ ]] || die "已取消。请先手动安装 Homebrew: https://brew.sh"
+  ┌──────────────────────────────────────────────────────────────
+  │ /bin/bash -c "\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  └──────────────────────────────────────────────────────────────
 
-  # Homebrew 官方脚本在 NONINTERACTIVE=1 模式下会做 `sudo -n -v` 免密探测。
-  # 外层 sudo 缓存的 ticket 在 `sudo -u $SUDO_USER` 切换上下文后不生效,
-  # 必须在 $SUDO_USER 身份下重新预热一次 sudo 凭据。
-  warn "接下来会再问一次你 ($SUDO_USER) 的账户密码,用于给 Homebrew 授权..."
-  sudo -u "$SUDO_USER" -H sudo -v || die "sudo 授权失败,请确认 $SUDO_USER 是管理员用户"
+  过程中它会:
+    1. 提示你输入 sudo 密码
+    2. 下载 Xcode Command Line Tools (几百 MB,几分钟)
+    3. 在 /opt/homebrew (Apple Silicon) 或 /usr/local (Intel) 建立环境
 
-  # 后台保活 sudo 凭据 (Homebrew 安装 Xcode CLT 可能耗时 >5 分钟,超过 sudo 默认超时)
-  ( while kill -0 "$$" 2>/dev/null; do
-      sudo -u "$SUDO_USER" -H sudo -n -v 2>/dev/null || exit
-      sleep 60
-    done ) &
-  local sudo_keepalive=$!
-  # shellcheck disable=SC2064
-  trap "kill $sudo_keepalive 2>/dev/null || true" RETURN EXIT
-
-  log "以用户 $SUDO_USER 身份运行 Homebrew 安装脚本..."
-  # NONINTERACTIVE=1 让 Homebrew 官方脚本跳过 "Press RETURN to continue"
-  sudo -u "$SUDO_USER" -H bash -c \
-    'NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
-
-  kill "$sudo_keepalive" 2>/dev/null || true
-
-  # 装完重新探测
-  local prefix
-  prefix=$(mac_brew_prefix) || die "Homebrew 安装后仍无法探测到 brew,请检查安装日志"
-  log "Homebrew 安装完成,前缀: $prefix"
-
-  # 提示用户把 brew shellenv 加进 shell 配置 (脚本内部已经不需要,内部用绝对路径)
-  cat <<EOF
-
-  【提示】要让日常终端也能直接用 brew 命令,请在被 sudo 的用户下执行一次:
-    echo 'eval "\$($prefix/bin/brew shellenv)"' >> ~/.zprofile
-    eval "\$($prefix/bin/brew shellenv)"
-
-  本次脚本运行内部已用绝对路径调用,不受影响。
+  装完之后,再重新执行:
+    sudo bash $0
+  选择 2 或 3 继续本脚本流程。
 
 EOF
+  die "请先手动安装 Homebrew,再重新运行本脚本"
 }
 
 # 确保 Homebrew 已安装,返回前缀
