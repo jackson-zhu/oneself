@@ -59,6 +59,99 @@
 
 ---
 
+## 被控端预配置清单（一次性手工操作）
+
+以下几项都是**远控脚本不管、但无人值守必须做**的一次性配置。建议在跑 `wg-setup.sh` **之前或之后**都行，但必须做完，否则远控会遇到"合盖后连不上""屏幕黑屏"等问题。
+
+### 1. 开启屏幕共享 / 远程管理
+
+- 路径：`系统设置 → 通用 → 共享 → 屏幕共享`（或 `远程管理`）
+- 选择"仅允许这些用户"并勾选你的办公账户
+- **屏幕共享 与 远程管理二选一，不要同时开**（互相冲突）
+
+### 2. 关闭所有空闲休眠（开盖状态下生效）
+
+打开 Terminal 执行：
+
+```bash
+# 交流电源接入时: 系统 / 显示器 / 硬盘永不休眠
+sudo pmset -c sleep 0
+sudo pmset -c displaysleep 0
+sudo pmset -c disksleep 0
+
+# 电池模式下同上 (合盖后会被 clamshell sleep 覆盖,这个仅影响开盖时)
+sudo pmset -b sleep 0
+sudo pmset -b displaysleep 0
+
+# 关闭 Power Nap (周期性唤醒同步邮件,远控用不上)
+sudo pmset -a powernap 0
+
+# 断电恢复后自动开机
+sudo pmset -a autorestart 1
+
+# 检查当前设置
+pmset -g
+```
+
+### 3. 【M 系 Mac 关键】解除合盖休眠
+
+**这是 M 系 Mac 无人值守最大的坑**：`pmset` 无法禁用合盖休眠，合盖后系统会强制进入 `clamshell sleep`，此时**网络断开、WireGuard 掉线、无法被远控**。
+
+苹果官方的"合盖仍工作"要求外接显示器 + 外接电源 + 外接键鼠，你没有外接显示器就没法满足。绕过方法有两种：
+
+#### 方案 A：软件（推荐，免费）
+
+1. Mac App Store 安装 [Amphetamine](https://apps.apple.com/app/amphetamine/id937984704)（免费）
+2. 从 GitHub 下载配套工具 [Amphetamine Enhancer](https://github.com/x74353/Amphetamine-Enhancer)
+3. 打开 Amphetamine Enhancer → 安装 "Close Display Sleep Prevention"（会引导授权辅助功能 + 完整磁盘访问）
+4. Amphetamine → 偏好设置 → **勾选 "Allow display sleep while session is active"** 及合盖相关选项
+5. 建议直接创建一个"永久激活"的 Session，或者用触发器绑定 wg0 隧道
+
+**注意**：Amphetamine Enhancer 是社区维护的开源工具，装的时候会弹权限对话框，按提示允许即可。
+
+#### 方案 B：硬件（终极稳定）
+
+- 淘宝购买 **USB-C HDMI EDID 欺骗器**（俗称"假显示器 / dummy plug"），几块到几十块
+- 插上 Mac 会误认为外接了 4K 显示器，即使合盖也保持 clamshell 工作模式
+- 优点：完全不依赖软件、系统升级也不会失效
+- 缺点：占用一个 USB-C 口
+
+**建议**：先用方案 A，同时买一个 dummy plug 放抽屉里备用。
+
+### 4. 关闭自动更新（避免半夜自动重启）
+
+- `系统设置 → 通用 → 软件更新 → ⓘ → 关闭所有自动更新选项`
+- 否则某个凌晨系统自动装安全更新 + 重启，你合盖状态就再也连不上了
+
+### 5. 【可选】准备低分辨率切换工具
+
+如果你的 VPS 带宽不足（<20 Mbps 稳定），建议装个分辨率切换工具，远控前切低分辨率降低 VNC 数据量。M 系 Mac 推荐：
+
+```bash
+brew install displayplacer
+```
+
+用法见 [常见问题排查](#常见问题排查) 第 3 条。
+
+### 6. 【可选】关闭动态特效
+
+- `系统设置 → 辅助功能 → 显示 → 打开"减弱动态效果"`
+- 换纯色壁纸（关闭动态壁纸）
+- 这些能进一步降低 VNC 画面重绘的数据量
+
+### 7. 校验一次
+
+做完以上所有配置后，做一次"真无人值守"演练：
+
+1. 断开外接电源（如果有）
+2. 合盖
+3. 走开 5 分钟
+4. 回来用控制端连 `vnc://10.0.0.2`，能连上 = 合盖不休眠配置成功
+
+**这一步千万别省**，很多人以为配好了，结果第一次真无人值守就掉线。
+
+---
+
 ## 使用方法
 
 ### Step 1 — VPS 端安装
