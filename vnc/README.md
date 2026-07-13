@@ -74,6 +74,9 @@
 打开 Terminal 执行：
 
 ```bash
+# 禁止系统睡眠
+sudo pmset -a disablesleep 1
+
 # 交流电源接入时: 系统 / 显示器 / 硬盘永不休眠
 sudo pmset -c sleep 0
 sudo pmset -c displaysleep 0
