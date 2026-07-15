@@ -74,7 +74,7 @@
 打开 Terminal 执行：
 
 ```bash
-# 禁止系统睡眠
+# 系统层面禁止睡眠
 sudo pmset -a disablesleep 1
 
 # 交流电源接入时: 系统 / 显示器 / 硬盘永不休眠
@@ -94,6 +94,7 @@ sudo pmset -a autorestart 1
 
 # 检查当前设置
 pmset -g
+pmset -g custom
 ```
 
 ### 3. 【M 系 Mac 关键】解除合盖休眠
@@ -136,11 +137,42 @@ brew install displayplacer
 
 用法见 [常见问题排查](#常见问题排查) 第 3 条。
 
-### 6. 【可选】关闭动态特效
+### 6. 【可选】关闭 macOS 所有动画和特效（带宽不足必做）
 
-- `系统设置 → 辅助功能 → 显示 → 打开"减弱动态效果"`
+#### 系统设置可视化操作
+- `系统设置 → 辅助功能 → 显示`：
+  - ✅ 打开"减少透明度"
+  - ✅ 打开"减少动态效果"
 - 换纯色壁纸（关闭动态壁纸）
-- 这些能进一步降低 VNC 画面重绘的数据量
+
+#### Terminal 一键关闭动画（可选但有效）
+粘贴这些命令到被控端 Mac Terminal，执行后会杀掉 Dock/Finder/SystemUIServer 立即生效：
+
+```bash
+# 1. 窗口系统动画
+defaults write NSGlobalDomain NSAutomaticWindowAnimationsEnabled -bool false
+defaults write NSGlobalDomain NSWindowResizeTime -float 0.001
+
+# 2. Dock 动画优化
+defaults write com.apple.dock launchanim -bool false
+defaults write com.apple.dock autohide-time-modifier -float 0
+defaults write com.apple.dock autohide-delay -float 0
+defaults write com.apple.dock no-bouncing -bool TRUE
+defaults write com.apple.dock expose-animation-duration -float 0
+defaults write com.apple.dock workspaces-swoosh-animation-off -bool TRUE
+defaults write com.apple.dock mineffect -string "scale"
+defaults write com.apple.dock minimize-to-application -bool true
+
+# 3. Finder 动画
+defaults write com.apple.finder DisableAllAnimations -bool true
+
+# 重启服务生效
+killall Dock
+killall Finder
+killall SystemUIServer
+```
+
+这些能进一步降低 VNC 画面重绘的数据量。
 
 ### 7. 校验一次
 
@@ -378,6 +410,46 @@ sudo rm -rf $(brew --prefix)/etc/wireguard
 ```
 
 **macOS 控制端**：同上，但不需要 `launchctl unload`。
+
+---
+
+## VNC 极致优化（带宽不足必备）
+
+如果你的 VPS 实际带宽 < 20 Mbps（像之前实测的 7 Mbps），这一节**非常重要**，能让你从"勉强能用"变成"基本流畅"。
+
+### 1. macOS 原生屏幕共享服务优化（关键）
+
+这些优化直接作用于 ARD（Apple Remote Desktop）/ 屏幕共享的底层压缩和传输，比单纯降分辨率效果更明显。
+
+在被控端 Mac Terminal 执行：
+
+```bash
+# 开启屏幕共享压缩 (0=关, 1=低, 2=中, 3=高) - 推荐 2
+sudo defaults write /Library/Preferences/com.apple.RemoteManagement ARDCompressionLevel -int 2
+
+# 禁止远程桌面传输桌面背景图片（静态壁纸还可以，动态/高清壁纸彻底禁止）
+sudo defaults write /Library/Preferences/com.apple.RemoteManagement LoadMovies -bool false
+
+# 禁止远程桌面显示系统特效（与前面关闭动画配合）
+sudo defaults write /Library/Preferences/com.apple.RemoteManagement EnableRemoteDesktop -bool true
+
+# 重启屏幕共享服务热加载
+sudo launchctl kickstart -k system/com.apple.screensharing
+```
+
+### 2. 分辨率降档（已在预配置里提到，这里再强调）
+
+M 系 MacBook Air M4 默认 framebuffer 是 ~3420×2214，直接传会占满 30 Mbps。用 `displayplacer` 切到真正的非 Retina 低分辨率：
+
+```bash
+# 先看你有哪些可用的分辨率
+displayplacer list
+
+# 切到 1440×900 non-HiDPI（用上面 list 输出的 id 替换下面的 XXX）
+displayplacer "id:XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX res:1440x900 hz:60 scaling:off"
+```
+
+本地屏幕会变得糊，但 VNC 数据量会降到原来的 1/5。
 
 ---
 
