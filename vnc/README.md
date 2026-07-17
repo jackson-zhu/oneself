@@ -194,7 +194,7 @@ killall SystemUIServer
 登录 VPS：
 
 ```bash
-curl -fsSLO https://raw.githubusercontent.com/<你的用户名>/<仓库名>/main/wg-setup.sh
+curl -fsSLO https://raw.githubusercontent.com/jackson-zhu/oneself/refs/heads/main/vnc/wg-setup.sh
 sudo bash wg-setup.sh
 # 菜单选 1
 ```
@@ -224,7 +224,7 @@ ss -lun | grep 51820  # 应看到监听
 在被控端 Mac 打开 Terminal：
 
 ```bash
-curl -fsSLO https://raw.githubusercontent.com/<你的用户名>/<仓库名>/main/wg-setup.sh
+curl -fsSLO https://raw.githubusercontent.com/jackson-zhu/oneself/refs/heads/main/vnc/wg-setup.sh
 sudo bash wg-setup.sh
 # 菜单选 2
 # 按提示粘贴: VPS 公网 IP、VPS 公钥
@@ -247,7 +247,7 @@ sudo bash wg-setup.sh
 ### Step 3 — 每台控制端 Mac 安装
 
 ```bash
-curl -fsSLO https://raw.githubusercontent.com/<你的用户名>/<仓库名>/main/wg-setup.sh
+curl -fsSLO https://raw.githubusercontent.com/jackson-zhu/oneself/refs/heads/main/vnc/wg-setup.sh
 sudo bash wg-setup.sh
 # 菜单选 3
 # 按提示输入: 该控制端分配的 IP (10.0.0.3, 10.0.0.4, ...)
